@@ -1,0 +1,18 @@
+name: Rule Request
+description: Request a new security rule to be added to the scanner
+labels: ["enhancement", "new-rule"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Rule Description
+      description: Explain the risk you want to detect and why it is dangerous.
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Code Examples
+      description: Provide clear examples of code that should trigger this rule.
+    validations:
+      required: true

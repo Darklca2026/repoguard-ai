@@ -1,0 +1,18 @@
+ignore:
+  - "node_modules/**"
+  - "dist/**"
+  - "build/**"
+  - ".git/**"
+  - "coverage/**"
+
+rules:
+  secrets: true
+  promptInjection: true
+  githubActions: true
+  dangerousCode: true
+  aiGenerated: true
+
+severity:
+  failOn: HIGH
+
+maxFileSizeKb: 1024
