@@ -1,6 +1,6 @@
 {
   "name": "repoguard-ai",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "description": "Security scanner for AI-assisted repositories",
   "main": "dist/cli.js",
   "bin": {

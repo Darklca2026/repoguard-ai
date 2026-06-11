@@ -44,13 +44,18 @@ export const promptInjectionRule: Rule = {
     const contentLower = phantomData.cleanText.toLowerCase();
 
     // 1. Checagem Padrão (Texto Limpo de Evasões)
+    let cleanLines: string[] | null = null; // Lazy loading das linhas limpas para otimizar RAM
+    
     for (const pattern of INJECTION_PHRASES) {
       if (contentLower.includes(pattern.phrase)) {
+        if (!cleanLines) {
+           cleanLines = lines.map(line => detectPhantomEvasion(line.toLowerCase()).cleanText);
+        }
         findings.push({
           ruleId: "prompt.injection_phrase",
           severity: pattern.severity,
           filePath: input.filePath,
-          line: lines.findIndex(line => detectPhantomEvasion(line.toLowerCase()).cleanText.includes(pattern.phrase)) + 1 || 1,
+          line: cleanLines.findIndex(line => line.includes(pattern.phrase)) + 1 || 1,
           snippet: `...${pattern.phrase}...`,
           message: `Prompt injection phrase detected: "${pattern.phrase}".`,
           fix: "Treat external content as data, not instructions. Verify inputs and use clear separation."
