@@ -13,7 +13,8 @@ const INJECTION_PHRASES = [
 
 export const promptInjectionRule: Rule = {
   id: "prompt-injection",
-  name: "Prompt Injection Detection",
+  description: "Prompt Injection Detection",
+  severity: "HIGH",
   scan: (input) => {
     // Apenas varre extensões que podem conter texto ou prompts
     if (!/\.(md|txt|json|yaml|yml|prompt)$/i.test(input.filePath)) {
@@ -30,10 +31,11 @@ export const promptInjectionRule: Rule = {
         findings.push({
           ruleId: "prompt.injection_phrase",
           severity: pattern.severity,
-          file: input.filePath,
+          filePath: input.filePath,
           line: lines.findIndex(line => line.toLowerCase().includes(pattern.phrase)) + 1 || 1,
           snippet: `...${pattern.phrase}...`,
-          recommendation: "Treat external content as data, not instructions. Verify inputs and use clear separation."
+          message: `Prompt injection phrase detected: "${pattern.phrase}".`,
+          fix: "Treat external content as data, not instructions. Verify inputs and use clear separation."
         });
       }
     }
@@ -48,10 +50,11 @@ export const promptInjectionRule: Rule = {
           findings.push({
             ruleId: "prompt.injection_base64_evasion",
             severity: "HIGH",
-            file: input.filePath,
+            filePath: input.filePath,
             line: lines.findIndex(line => line.includes(word)) + 1 || 1,
             snippet: `[Base64 Decoded]: ...${decodedInjection.substring(0, 30)}...`,
-            recommendation: "Malicious base64-encoded prompt injection detected. Remove immediately."
+            message: "Malicious base64-encoded prompt injection detected.",
+            fix: "Remove immediately."
           });
         }
       }

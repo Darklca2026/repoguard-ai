@@ -10,6 +10,15 @@ export class FileLoader {
 
   constructor(private config: RepoGuardConfig) {
     this.ig = ignore();
+    
+    // Padrões Globais que devem ser ignorados por padrão (Arquivos de lock que contêm hashes Base64/Hex)
+    this.ig.add([
+      "package-lock.json",
+      "yarn.lock",
+      "pnpm-lock.yaml",
+      "bun.lockb"
+    ]);
+
     if (this.config.ignore) {
       this.ig.add(this.config.ignore);
     }

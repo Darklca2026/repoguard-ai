@@ -1,0 +1,11 @@
+# RepoGuard AI Configuration (Dogfooding for our own repository)
+ignore:
+  - "tests/"
+  - "docs/"
+  - "examples/"
+  - "README.md"
+  - "src/rules/dangerous-code.ts" # We have literal eval strings here that our own rule will catch!
+  - "src/rules/prompt-injection.ts" # We have literal prompt injection texts here
+
+severity:
+  failOn: "HIGH"

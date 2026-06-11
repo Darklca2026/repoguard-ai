@@ -66,13 +66,13 @@ export function printSarifReport(findings: Finding[]): void {
           ruleId: f.ruleId,
           level: f.severity === "CRITICAL" || f.severity === "HIGH" ? "error" : "warning",
           message: {
-            text: `[${f.severity}] ${f.recommendation || f.snippet}`
+            text: `[${f.severity}] ${f.message} ${f.fix ? "- " + f.fix : ""}`
           },
           locations: [
             {
               physicalLocation: {
-                artifactLocation: { uri: f.file },
-                region: { startLine: f.line }
+                artifactLocation: { uri: f.filePath },
+                region: { startLine: f.line || 1 }
               }
             }
           ]

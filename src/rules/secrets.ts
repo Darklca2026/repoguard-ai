@@ -15,7 +15,8 @@ const HIGH_ENTROPY_REGEX = /[a-zA-Z0-9\-_]{20,}/g;
 
 export const secretsRule: Rule = {
   id: "secrets",
-  name: "Secrets and Credentials",
+  description: "Secrets and Credentials",
+  severity: "CRITICAL",
   scan: (input) => {
     const findings: Finding[] = [];
     
@@ -26,10 +27,11 @@ export const secretsRule: Rule = {
         findings.push({
           ruleId: pattern.id,
           severity: "CRITICAL",
-          file: input.filePath,
+          filePath: input.filePath,
           line: input.content.substring(0, match.index).split("\n").length,
           snippet: match[0].substring(0, 6) + "************************", // Ofusca a chave
-          recommendation: "Remove the key, rotate it, and use environment variables or GitHub Secrets."
+          message: `Possible ${pattern.name} detected.`,
+          fix: "Remove the key, rotate it, and use environment variables or GitHub Secrets."
         });
       }
     }
@@ -43,15 +45,16 @@ export const secretsRule: Rule = {
       // Se a entropia for maior que 4.5 (muito aleatório) e não tiver sido pego pelos patterns acima
       if (entropy > 4.5) {
         // Evita duplicatas checando se já foi logado
-        const alreadyLogged = findings.some(f => f.snippet.startsWith(token.substring(0, 6)));
+        const alreadyLogged = findings.some(f => f.snippet && f.snippet.startsWith(token.substring(0, 6)));
         if (!alreadyLogged) {
            findings.push({
             ruleId: "secret.high_entropy_string",
             severity: "MEDIUM",
-            file: input.filePath,
+            filePath: input.filePath,
             line: input.content.substring(0, match.index).split("\n").length,
             snippet: token.substring(0, 6) + "************************",
-            recommendation: `High entropy string detected (Entropy: ${entropy.toFixed(2)}). Verify if this is an unknown hardcoded credential.`
+            message: `High entropy string detected (Entropy: ${entropy.toFixed(2)}).`,
+            fix: "Verify if this is an unknown hardcoded credential."
           });
         }
       }
