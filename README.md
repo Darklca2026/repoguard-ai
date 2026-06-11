@@ -35,7 +35,8 @@ RepoGuard AI gives maintainers a fast local check before pushing or opening a pu
 | Feature | Description | File Support |
 | --- | --- | --- |
 | 🔑 **Secret Detection** | Finds keys & DB URLs. Uses **Shannon Entropy** to detect unknown hardcoded tokens. | `.*` |
-| 💉 **Prompt Injection** | Scans for malicious override instructions and evading **Base64 payloads**. | `.md, .txt, .json, .yaml` |
+| 💉 **Prompt Injection** | Scans for malicious override instructions, Base64 evasion, and **Phantom Payloads (Zero-Width & Homoglyphs)**. | `.md, .txt, .json, .yaml` |
+| 🧠 **AI Poisoning Defender** | Detects insecure `torch.load()`, `pickle`, and `yaml.unsafe_load()` vectors in ML models. | `.py, .ipynb` |
 | ⚙️ **GitHub Actions** | Flags dangerous CI/CD permissions and triggers. | `.github/workflows/*.yml` |
 | 💣 **Dangerous Code & Anti-Tamper** | Detects unsafe eval, shell executions, and attempts to delete `.git` or workflows. | `.js, .ts, .py, .sh` |
 
@@ -52,7 +53,13 @@ Automatically block developers from committing leaked secrets:
 repoguard-ai init-hook
 ```
 
-**3. Run the scanner in your repository:**
+**3. Plant Active Honeypots (Canary Tokens):**
+Drop a fake `.env.canary` file to act as a tripwire. If a hacker steals your repository and uses these fake AWS/GitHub keys, you can audit the intrusion.
+```bash
+repoguard-ai plant-canary
+```
+
+**4. Run the scanner in your repository:**
 ```bash
 repoguard-ai scan .
 ```
@@ -171,7 +178,8 @@ O RepoGuard AI fornece aos mantenedores uma verificação local super rápida an
 | Recurso | Descrição | Extensões |
 | --- | --- | --- |
 | 🔑 **Detecção de Secrets** | Acha chaves e URLs de DB. Usa **Entropia de Shannon** para achar tokens desconhecidos. | `.*` |
-| 💉 **Prompt Injection** | Busca por instruções de sobreposição e evasão com payloads **Base64**. | `.md, .txt, .json, .yaml` |
+| 💉 **Prompt Injection** | Busca evasões com payloads **Base64** e normaliza **Cargas Fantasmas (Caracteres Invisíveis e Homóglifos)**. | `.md, .txt, .json, .yaml` |
+| 🧠 **Defesa de Envenenamento IA** | Detecta uso de `torch.load()` inseguro e `pickle` maliciosos em ecossistemas de ML. | `.py, .ipynb` |
 | ⚙️ **GitHub Actions** | Alerta permissões altas de CI/CD e gatilhos inseguros. | `.github/workflows/*.yml` |
 | 💣 **Código Perigoso e Anti-Tamper** | Detecta uso de eval, exec, execução em shell e tentativas de deletar `.git`. | `.js, .ts, .py, .sh` |
 
@@ -188,7 +196,13 @@ Impede fisicamente o desenvolvedor de subir chaves vazadas:
 repoguard-ai init-hook
 ```
 
-**3. Rode o scanner no seu repositório:**
+**3. Plante Armadilhas (Honeypots / Canary Tokens):**
+Gere um `.env.canary` falso. Se hackers roubarem seu código e tentarem usar essas chaves isca, eles falharão e a tentativa poderá ser auditada.
+```bash
+repoguard-ai plant-canary
+```
+
+**4. Rode o scanner no seu repositório:**
 ```bash
 repoguard-ai scan .
 ```
