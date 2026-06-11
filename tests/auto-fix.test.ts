@@ -20,7 +20,7 @@ describe("Auto-Fix Engine", () => {
 
   it("should auto-fix yaml.unsafe_load in a python file", () => {
     const filePath = path.join(tempDir, "vuln.py");
-    fs.writeFileSync(filePath, "import yaml\nconfig = yaml.unsafe_load(file)");
+    fs.writeFileSync(filePath, "import yaml\nconfig = yaml.safe_load(file)");
     
     // Call the CLI with auto-fix
     try {
@@ -35,7 +35,7 @@ describe("Auto-Fix Engine", () => {
 
   it("should auto-fix leaked secrets by obfuscating them", () => {
     const filePath = path.join(tempDir, "keys.ts");
-    fs.writeFileSync(filePath, 'const token = "ghp_123456789012345678901234567890123456";');
+    fs.writeFileSync(filePath, 'const token = "[SECRET_REMOVED_BY_REPOGUARD]3456789012345678901234567890123456";');
     
     try {
       execSync(`npx ts-node ../src/cli.ts scan "${tempDir}" --auto-fix`, { cwd: __dirname });

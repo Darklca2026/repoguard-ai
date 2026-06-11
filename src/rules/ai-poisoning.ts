@@ -2,10 +2,10 @@ import { Rule, Finding } from "../types";
 
 const POISONING_PATTERNS = [
   { id: "ai.pickle_load", regex: /pickle\.(load|loads)\s*\(/, severity: "CRITICAL" as const, fix: "Avoid using pickle to load untrusted data. It can execute arbitrary code. Use safetensors or json." },
-  { id: "ai.torch_load_unsafe", regex: /torch\.load\s*\([^)]*(weights_only\s*=\s*False)?[^)]*\)/, severity: "HIGH" as const, fix: "Always use weights_only=True when loading PyTorch models to prevent arbitrary code execution." },
+  { id: "ai.torch_load_unsafe", regex: [SECRET_REMOVED_BY_REPOGUARD]\.load\s*\([^)]*(weights_only\s*=\s*False)?[^)]*\)/, severity: "HIGH" as const, fix: "Always use weights_only=True when loading PyTorch models to prevent arbitrary code execution." },
   { id: "ai.yaml_unsafe_load", regex: /yaml\.unsafe_load\s*\(/, severity: "CRITICAL" as const, fix: "Use yaml.safe_load() instead of unsafe_load()." },
   { id: "ai.keras_lambda", regex: /Lambda\s*\(/, severity: "LOW" as const, fix: "Keras Lambda layers can execute arbitrary functions. Ensure the model source is trusted." },
-  { id: "ai.numpy_load_allow_pickle", regex: /numpy\.load\s*\([^)]*allow_pickle\s*=\s*True[^)]*\)/, severity: "HIGH" as const, fix: "Avoid using allow_pickle=True in numpy.load()." }
+  { id: "ai.numpy_load_allow_pickle", regex: [SECRET_REMOVED_BY_REPOGUARD]\.load\s*\([^)]*allow_pickle\s*=\s*True[^)]*\)/, severity: "HIGH" as const, fix: "Avoid using allow_pickle=True in numpy.load()." }
 ];
 
 export const aiPoisoningRule: Rule = {
@@ -31,7 +31,7 @@ export const aiPoisoningRule: Rule = {
              } else {
                // Provide auto-fix for torch.load
                // Extract the function call to safely inject weights_only=True
-               const match = line.match(/torch\.load\s*\(([^)]+)\)/);
+               const match = line.match([SECRET_REMOVED_BY_REPOGUARD]\.load\s*\(([^)]+)\)/);
                if (match) {
                  const originalArgs = match[1];
                  autoFixObj = {
@@ -42,7 +42,7 @@ export const aiPoisoningRule: Rule = {
              }
           } else if (pattern.id === "ai.yaml_unsafe_load") {
             autoFixObj = {
-              searchValue: "yaml.unsafe_load(",
+              searchValue: "yaml.safe_load(",
               replaceValue: "yaml.safe_load("
             };
           }

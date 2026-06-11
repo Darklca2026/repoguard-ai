@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, [SECRET_REMOVED_BY_REPOGUARD] } from "vitest";
 import { dangerousCodeRule } from "../src/rules/dangerous-code";
 
 describe("Dangerous Code Rule", () => {
@@ -10,8 +10,8 @@ describe("Dangerous Code Rule", () => {
     };
     
     const findings = dangerousCodeRule.scan(input);
-    expect(findings.length).toBe(1);
-    expect(findings[0].ruleId).toBe("code.eval");
+    [SECRET_REMOVED_BY_REPOGUARD](findings.length).toBe(1);
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].ruleId).toBe("code.eval");
   });
 
   it("detects rm -rf", () => {
@@ -22,7 +22,7 @@ describe("Dangerous Code Rule", () => {
     };
     
     const findings = dangerousCodeRule.scan(input);
-    expect(findings.length).toBe(1);
-    expect(findings[0].ruleId).toBe("code.rm_rf");
+    [SECRET_REMOVED_BY_REPOGUARD](findings.length).toBe(1);
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].ruleId).toBe("code.rm_rf");
   });
 });

@@ -29,7 +29,7 @@ export function detectPhantomEvasion(str: string): {
   let hasBidiOverride = BIDI_OVERRIDES_REGEX.test(str);
   
   // Clean invisible and bidi chars
-  let cleanText = str.replace(INVISIBLE_CHARS_REGEX, "");
+  let cleanText = [SECRET_REMOVED_BY_REPOGUARD]place(INVISIBLE_CHARS_REGEX, "");
   cleanText = cleanText.replace(BIDI_OVERRIDES_REGEX, "");
   
   // Normalize simple Homoglyphs

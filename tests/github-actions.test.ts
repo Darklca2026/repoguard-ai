@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, [SECRET_REMOVED_BY_REPOGUARD] } from "vitest";
 import { githubActionsRule } from "../src/rules/github-actions";
 
 describe("GitHub Actions Rule", () => {
@@ -10,8 +10,8 @@ describe("GitHub Actions Rule", () => {
     };
     
     const findings = githubActionsRule.scan(input);
-    expect(findings.length).toBe(1);
-    expect(findings[0].ruleId).toBe("actions.pull_request_target");
+    [SECRET_REMOVED_BY_REPOGUARD](findings.length).toBe(1);
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].ruleId).toBe("actions.pull_request_target");
   });
 
   it("detects curl | bash", () => {
@@ -22,7 +22,7 @@ describe("GitHub Actions Rule", () => {
     };
     
     const findings = githubActionsRule.scan(input);
-    expect(findings.length).toBe(1);
-    expect(findings[0].ruleId).toBe("actions.curl_pipe_bash");
+    [SECRET_REMOVED_BY_REPOGUARD](findings.length).toBe(1);
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].ruleId).toBe("actions.curl_pipe_bash");
   });
 });

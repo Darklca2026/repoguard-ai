@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, [SECRET_REMOVED_BY_REPOGUARD] } from "vitest";
 import { aiPoisoningRule } from "../src/rules/ai-poisoning";
 
 describe("AI Poisoning Rule", () => {
@@ -9,8 +9,8 @@ describe("AI Poisoning Rule", () => {
       lines: ["import torch", "model = torch.load('model.pt')"]
     };
     const findings = aiPoisoningRule.scan(input);
-    expect(findings.length).toBe(1);
-    expect(findings[0].ruleId).toBe("ai.torch_load_unsafe");
+    [SECRET_REMOVED_BY_REPOGUARD](findings.length).toBe(1);
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].ruleId).toBe("ai.torch_load_unsafe");
   });
 
   it("ignores safe torch.load", () => {
@@ -20,7 +20,7 @@ describe("AI Poisoning Rule", () => {
       lines: ["model = torch.load('model.pt', weights_only=True)"]
     };
     const findings = aiPoisoningRule.scan(input);
-    expect(findings.length).toBe(0);
+    [SECRET_REMOVED_BY_REPOGUARD](findings.length).toBe(0);
   });
 
   it("detects pickle.loads", () => {
@@ -30,8 +30,8 @@ describe("AI Poisoning Rule", () => {
       lines: ["import pickle", "pickle.loads(data)"]
     };
     const findings = aiPoisoningRule.scan(input);
-    expect(findings.length).toBe(1);
-    expect(findings[0].ruleId).toBe("ai.pickle_load");
-    expect(findings[0].severity).toBe("CRITICAL");
+    [SECRET_REMOVED_BY_REPOGUARD](findings.length).toBe(1);
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].ruleId).toBe("ai.pickle_load");
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].severity).toBe("CRITICAL");
   });
 });

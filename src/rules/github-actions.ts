@@ -9,20 +9,20 @@ export const githubActionsRule: Rule = {
     const findings: Finding[] = [];
 
     // Only scan files in .github/workflows
-    if (!input.filePath.includes(".github/workflows")) {
+    if [SECRET_REMOVED_BY_REPOGUARD]t.filePath.includes(".github/workflows")) {
       return findings;
     }
 
     let isPullRequestWorkflow = false;
 
     input.lines.forEach((line, index) => {
-      const trimmedLine = line.trim();
+      const [SECRET_REMOVED_BY_REPOGUARD]dLine = line.trim();
 
-      if (trimmedLine.includes("on:") && input.lines.slice(index, index + 5).some(l => l.includes("pull_request"))) {
+      if [SECRET_REMOVED_BY_REPOGUARD]edLine.includes("on:") && input.lines.slice(index, index + 5).some(l => l.includes("pull_request"))) {
         isPullRequestWorkflow = true;
       }
 
-      if (trimmedLine === "on: pull_request_target" || trimmedLine.includes("pull_request_target:")) {
+      if [SECRET_REMOVED_BY_REPOGUARD]edLine === "on: pull_request_target" || [SECRET_REMOVED_BY_REPOGUARD]dLine.includes("pull_request_target:")) {
         findings.push({
           ruleId: "actions.pull_request_target",
           severity: "HIGH",
@@ -34,7 +34,7 @@ export const githubActionsRule: Rule = {
         });
       }
 
-      if (trimmedLine.includes("permissions:") && trimmedLine.includes("write-all")) {
+      if [SECRET_REMOVED_BY_REPOGUARD]edLine.includes("permissions:") && [SECRET_REMOVED_BY_REPOGUARD]dLine.includes("write-all")) {
          findings.push({
           ruleId: "actions.write_all",
           severity: "HIGH",
@@ -46,7 +46,7 @@ export const githubActionsRule: Rule = {
         });
       }
       
-      if (trimmedLine.includes("curl") && trimmedLine.includes("| bash")) {
+      if [SECRET_REMOVED_BY_REPOGUARD]edLine.includes("curl") && [SECRET_REMOVED_BY_REPOGUARD]dLine.includes("| bash")) {
          findings.push({
           ruleId: "actions.curl_pipe_bash",
           severity: "HIGH",
@@ -58,7 +58,7 @@ export const githubActionsRule: Rule = {
         });
       }
 
-      if (trimmedLine.includes("wget") && trimmedLine.includes("| sh")) {
+      if [SECRET_REMOVED_BY_REPOGUARD]edLine.includes("wget") && [SECRET_REMOVED_BY_REPOGUARD]dLine.includes("| sh")) {
          findings.push({
           ruleId: "actions.wget_pipe_sh",
           severity: "HIGH",
@@ -70,10 +70,10 @@ export const githubActionsRule: Rule = {
         });
       }
 
-      if (trimmedLine.match(/uses:\s*[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+@(?!(.*[a-f0-9]{40}))/)) {
+      if [SECRET_REMOVED_BY_REPOGUARD]edLine.match(/uses:\s*[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+@(?!(.*[a-f0-9]{40}))/)) {
         // Checking for uses without SHA
         // e.g. actions/checkout@v3 or owner/repo@main
-        const usesMatch = trimmedLine.match(/uses:\s*([^@\s]+@[^\s]+)/);
+        const usesMatch = [SECRET_REMOVED_BY_REPOGUARD]dLine.match(/uses:\s*([^@\s]+@[^\s]+)/);
         if (usesMatch) {
           const actionRef = usesMatch[1];
           if (!actionRef.startsWith("actions/")) { // Ignore official GitHub Actions for less noise

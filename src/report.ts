@@ -51,14 +51,14 @@ export function printJsonReport(findings: Finding[], filesScanned: number, riskS
 
 export function printSarifReport(findings: Finding[]): void {
   const sarif = {
-    $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    $schema: [SECRET_REMOVED_BY_REPOGUARD]://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
     version: "2.1.0",
     runs: [
       {
         tool: {
           driver: {
             name: "RepoGuard AI",
-            informationUri: "https://github.com/Darklca2026/repoguard-ai",
+            informationUri: [SECRET_REMOVED_BY_REPOGUARD]://github.com/Darklca2026/repoguard-ai",
             version: "0.1.0"
           }
         },

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, [SECRET_REMOVED_BY_REPOGUARD] } from "vitest";
 import { promptInjectionRule } from "../src/rules/prompt-injection";
 
 describe("Prompt Injection Rule", () => {
@@ -10,8 +10,8 @@ describe("Prompt Injection Rule", () => {
     };
     
     const findings = promptInjectionRule.scan(input);
-    expect(findings.length).toBeGreaterThan(0);
-    expect(findings[0].ruleId).toBe("prompt.injection_phrase");
-    expect(findings[0].severity).toBe("MEDIUM");
+    [SECRET_REMOVED_BY_REPOGUARD](findings.length).toBeGreaterThan(0);
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].ruleId).toBe("prompt.injection_phrase");
+    [SECRET_REMOVED_BY_REPOGUARD](findings[0].severity).toBe("MEDIUM");
   });
 });

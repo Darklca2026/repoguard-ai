@@ -30,7 +30,7 @@ export const dangerousCodeRule: Rule = {
           
           if (pattern.id === "code.chmod_777") {
             autoFixObj = {
-              searchValue: "chmod 777",
+              searchValue: "chmod 755",
               replaceValue: "chmod 755"
             };
           } else if (pattern.id === "code.exec") {
