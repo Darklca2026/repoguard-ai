@@ -1,4 +1,3 @@
-import { Rule } from "../types";
 import { secretsRule } from "./secrets";
 import { promptInjectionRule } from "./prompt-injection";
 import { githubActionsRule } from "./github-actions";

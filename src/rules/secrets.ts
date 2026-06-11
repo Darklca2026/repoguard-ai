@@ -31,7 +31,11 @@ export const secretsRule: Rule = {
           line: input.content.substring(0, match.index).split("\n").length,
           snippet: match[0].substring(0, 6) + "************************", // Ofusca a chave
           message: `Possible ${pattern.name} detected.`,
-          fix: "Remove the key, rotate it, and use environment variables or GitHub Secrets."
+          fix: "Remove the key, rotate it, and use environment variables or GitHub Secrets.",
+          autoFix: {
+            searchValue: match[0],
+            replaceValue: "[SECRET_REMOVED_BY_REPOGUARD]"
+          }
         });
       }
     }
@@ -54,7 +58,11 @@ export const secretsRule: Rule = {
             line: input.content.substring(0, match.index).split("\n").length,
             snippet: token.substring(0, 6) + "************************",
             message: `High entropy string detected (Entropy: ${entropy.toFixed(2)}).`,
-            fix: "Verify if this is an unknown hardcoded credential."
+            fix: "Verify if this is an unknown hardcoded credential.",
+            autoFix: {
+              searchValue: token,
+              replaceValue: "[HIGH_ENTROPY_REMOVED_BY_REPOGUARD]"
+            }
           });
         }
       }

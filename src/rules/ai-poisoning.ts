@@ -22,12 +22,29 @@ export const aiPoisoningRule: Rule = {
 
       for (const pattern of POISONING_PATTERNS) {
         if (pattern.regex.test(line)) {
-          // Additional safety check for torch.load: If it explicitly has weights_only=True, we shouldn't flag it as HIGH unless it explicitly has False or lacks it.
-          // The regex /torch\.load\s*\(/ catches all. Let's refine it in logic:
+          // AutoFix logic setup
+          let autoFixObj = undefined;
+          
           if (pattern.id === "ai.torch_load_unsafe") {
              if (line.includes("weights_only=True")) {
                continue; // It is safe
+             } else {
+               // Provide auto-fix for torch.load
+               // Extract the function call to safely inject weights_only=True
+               const match = line.match(/torch\.load\s*\(([^)]+)\)/);
+               if (match) {
+                 const originalArgs = match[1];
+                 autoFixObj = {
+                   searchValue: `torch.load(${originalArgs})`,
+                   replaceValue: `torch.load(${originalArgs}, weights_only=True)`
+                 };
+               }
              }
+          } else if (pattern.id === "ai.yaml_unsafe_load") {
+            autoFixObj = {
+              searchValue: "yaml.unsafe_load(",
+              replaceValue: "yaml.safe_load("
+            };
           }
 
           findings.push({
@@ -37,7 +54,8 @@ export const aiPoisoningRule: Rule = {
             line: index + 1,
             message: `Insecure AI model loading detected: ${pattern.id}.`,
             snippet: line.trim().substring(0, 80),
-            fix: pattern.fix
+            fix: pattern.fix,
+            autoFix: autoFixObj
           });
         }
       }

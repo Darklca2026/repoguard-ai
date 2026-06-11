@@ -60,7 +60,8 @@ program
   .option("--sarif", "Output report in SARIF format for GitHub Advanced Security")
   .option("-c, --config <path>", "Path to custom config file (YAML)")
   .option("--fail-on <severity>", "Fail with exit code 1 if risk score meets or exceeds this severity (LOW, MEDIUM, HIGH, CRITICAL)")
-  .action(async (targetPath: string, options: { json?: boolean; sarif?: boolean; config?: string; failOn?: string }) => {
+  .option("--auto-fix", "Automatically fix determinable security issues (e.g., removing secrets or upgrading insecure functions)")
+  .action(async (targetPath: string, options: { json?: boolean; sarif?: boolean; config?: string; failOn?: string; autoFix?: boolean }) => {
     try {
       const config = loadConfig(options.config);
       
@@ -78,7 +79,35 @@ program
       const rules = getEnabledRules(config);
       const scanner = new Scanner(config, rules);
 
-      const { filesScanned, findings } = await scanner.scan(targetPath);
+      let { filesScanned, findings } = await scanner.scan(targetPath);
+      
+      let fixedCount = 0;
+      if (options.autoFix) {
+        const fixableFindings = findings.filter(f => f.autoFix);
+        if (fixableFindings.length > 0) {
+          console.log(pc.cyan(`\n🛠️  Auto-Fix is enabled. Applying fixes to ${fixableFindings.length} issues...`));
+          
+          for (const finding of fixableFindings) {
+            try {
+              const fileContent = fs.readFileSync(finding.filePath, "utf-8");
+              // Usamos split.join para funcionar como replaceAll
+              const newContent = fileContent.split(finding.autoFix!.searchValue as string).join(finding.autoFix!.replaceValue);
+              
+              if (fileContent !== newContent) {
+                fs.writeFileSync(finding.filePath, newContent, "utf-8");
+                fixedCount++;
+                console.log(pc.green(`   ✅ Fixed ${finding.ruleId} in ${finding.filePath}`));
+              }
+            } catch (e: any) {
+              console.error(pc.yellow(`   ⚠️ Failed to auto-fix ${finding.filePath}: ${e.message}`));
+            }
+          }
+          
+          // Removemos os findings corrigidos do relatório final
+          findings = findings.filter(f => !f.autoFix);
+        }
+      }
+
       const riskScore = calculateRiskScore(findings);
 
       if (options.sarif) {
@@ -89,6 +118,10 @@ program
         printTerminalReport(findings, filesScanned, riskScore);
       }
 
+      if (options.autoFix && fixedCount > 0) {
+         console.log(pc.green(`\n✨ Successfully auto-fixed ${fixedCount} security vulnerabilities!`));
+      }
+
       const severities = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
       const failOnScore = config.severity?.failOn || "HIGH";
       const currentScoreIndex = severities.indexOf(riskScore);
@@ -96,7 +129,7 @@ program
 
       if (findings.length > 0 && currentScoreIndex >= failOnScoreIndex) {
         if (!options.json) {
-          console.error(pc.red(`\nScan failed. Risk score ${riskScore} meets or exceeds the failOn threshold of ${failOnScore}.`));
+          console.error(pc.red(`\nScan failed. Remaining risk score ${riskScore} meets or exceeds the failOn threshold of ${failOnScore}.`));
         }
         process.exit(1);
       } else {

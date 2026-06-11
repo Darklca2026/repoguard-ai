@@ -26,6 +26,21 @@ export const dangerousCodeRule: Rule = {
     input.lines.forEach((line, index) => {
       for (const pattern of DANGEROUS_PATTERNS) {
         if (pattern.regex.test(line)) {
+          let autoFixObj = undefined;
+          
+          if (pattern.id === "code.chmod_777") {
+            autoFixObj = {
+              searchValue: "chmod 777",
+              replaceValue: "chmod 755"
+            };
+          } else if (pattern.id === "code.exec") {
+            // Can be risky, but we apply an auto-fix to execFile
+            autoFixObj = {
+              searchValue: "child_process.exec(",
+              replaceValue: "child_process.execFile("
+            };
+          }
+
           findings.push({
             ruleId: pattern.id,
             severity: pattern.severity as "LOW" | "MEDIUM" | "HIGH",
@@ -33,7 +48,8 @@ export const dangerousCodeRule: Rule = {
             line: index + 1,
             message: `Dangerous code pattern found: ${pattern.id}.`,
             snippet: line.trim().substring(0, 80),
-            fix: pattern.fix
+            fix: pattern.fix,
+            autoFix: autoFixObj
           });
         }
       }

@@ -8,6 +8,10 @@ export type Finding = {
   message: string;
   snippet?: string;
   fix?: string;
+  autoFix?: {
+    searchValue: string | RegExp;
+    replaceValue: string;
+  };
 };
 
 export type ScanInput = {
@@ -32,6 +36,7 @@ export type RepoGuardConfig = {
     githubActions?: boolean;
     dangerousCode?: boolean;
     aiGenerated?: boolean;
+    aiPoisoning?: boolean;
   };
   severity?: {
     failOn?: Severity;
