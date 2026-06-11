@@ -41,12 +41,44 @@ export function printTerminalReport(findings: Finding[], filesScanned: number, s
   });
 }
 
-export function printJsonReport(findings: Finding[], filesScanned: number, score: Severity) {
+export function printJsonReport(findings: Finding[], filesScanned: number, riskScore: string): void {
   const report = {
-    riskScore: score,
-    filesScanned,
-    findingsCount: findings.length,
+    summary: { filesScanned, riskScore, totalFindings: findings.length },
     findings
   };
   console.log(JSON.stringify(report, null, 2));
+}
+
+export function printSarifReport(findings: Finding[]): void {
+  const sarif = {
+    $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    version: "2.1.0",
+    runs: [
+      {
+        tool: {
+          driver: {
+            name: "RepoGuard AI",
+            informationUri: "https://github.com/Darklca2026/repoguard-ai",
+            version: "0.1.0"
+          }
+        },
+        results: findings.map(f => ({
+          ruleId: f.ruleId,
+          level: f.severity === "CRITICAL" || f.severity === "HIGH" ? "error" : "warning",
+          message: {
+            text: `[${f.severity}] ${f.recommendation || f.snippet}`
+          },
+          locations: [
+            {
+              physicalLocation: {
+                artifactLocation: { uri: f.file },
+                region: { startLine: f.line }
+              }
+            }
+          ]
+        }))
+      }
+    ]
+  };
+  console.log(JSON.stringify(sarif, null, 2));
 }

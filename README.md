@@ -30,14 +30,14 @@ RepoGuard AI gives maintainers a fast local check before pushing or opening a pu
 - Dangerous shell commands (`curl | bash`)
 - Risky AI-generated code snippets
 
-### ✨ Key Features
+### ✨ Key Features & Heuristics
 
 | Feature | Description | File Support |
 | --- | --- | --- |
-| 🔑 **Secret Detection** | Finds keys & DB URLs. Redacts outputs natively. | `.*` |
-| 💉 **Prompt Injection** | Scans for malicious override instructions. | `.md, .txt, .json, .yaml` |
+| 🔑 **Secret Detection** | Finds keys & DB URLs. Uses **Shannon Entropy** to detect unknown hardcoded tokens. | `.*` |
+| 💉 **Prompt Injection** | Scans for malicious override instructions and evading **Base64 payloads**. | `.md, .txt, .json, .yaml` |
 | ⚙️ **GitHub Actions** | Flags dangerous CI/CD permissions and triggers. | `.github/workflows/*.yml` |
-| 💣 **Dangerous Code** | Detects unsafe eval, exec, and shell executions. | `.js, .ts, .py, .sh` |
+| 💣 **Dangerous Code & Anti-Tamper** | Detects unsafe eval, shell executions, and attempts to delete `.git` or workflows. | `.js, .ts, .py, .sh` |
 
 ### 🚀 Quick Start
 
@@ -46,14 +46,38 @@ RepoGuard AI gives maintainers a fast local check before pushing or opening a pu
 npm install -g repoguard-ai
 ```
 
-**2. Run the scanner in your repository:**
+**2. Setup Pre-commit Hook (Shift-Left Security):**
+Automatically block developers from committing leaked secrets:
+```bash
+repoguard-ai init-hook
+```
+
+**3. Run the scanner in your repository:**
 ```bash
 repoguard-ai scan .
 ```
 
-*Want machine-readable output? Use the JSON flag:*
+*Want machine-readable or GitHub Security output?*
 ```bash
 repoguard-ai scan . --json
+repoguard-ai scan . --sarif > results.sarif
+```
+
+### 🤖 Native GitHub Action
+
+Add this to your `.github/workflows/security.yml` to run RepoGuard natively:
+
+```yaml
+name: Security Scan
+on: [push, pull_request]
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Darklca2026/repoguard-ai@main
+        with:
+          format: 'sarif' # Uploads to GitHub Security Tab natively!
 ```
 
 ### 💻 Example Output
@@ -142,14 +166,14 @@ O RepoGuard AI fornece aos mantenedores uma verificação local super rápida an
 - Comandos shell perigosos (`curl | bash`)
 - Códigos inseguros gerados por IA
 
-### ✨ Principais Recursos
+### ✨ Principais Recursos e Inteligência
 
 | Recurso | Descrição | Extensões |
 | --- | --- | --- |
-| 🔑 **Detecção de Secrets** | Acha chaves e URLs de DB. Ofusca automaticamente no log. | `.*` |
-| 💉 **Prompt Injection** | Busca por instruções de sobreposição maliciosas. | `.md, .txt, .json, .yaml` |
+| 🔑 **Detecção de Secrets** | Acha chaves e URLs de DB. Usa **Entropia de Shannon** para achar tokens desconhecidos. | `.*` |
+| 💉 **Prompt Injection** | Busca por instruções de sobreposição e evasão com payloads **Base64**. | `.md, .txt, .json, .yaml` |
 | ⚙️ **GitHub Actions** | Alerta permissões altas de CI/CD e gatilhos inseguros. | `.github/workflows/*.yml` |
-| 💣 **Código Perigoso** | Detecta uso de eval, exec e execução cega em shell. | `.js, .ts, .py, .sh` |
+| 💣 **Código Perigoso e Anti-Tamper** | Detecta uso de eval, exec, execução em shell e tentativas de deletar `.git`. | `.js, .ts, .py, .sh` |
 
 ### 🚀 Início Rápido
 
@@ -158,14 +182,38 @@ O RepoGuard AI fornece aos mantenedores uma verificação local super rápida an
 npm install -g repoguard-ai
 ```
 
-**2. Rode o scanner no seu repositório:**
+**2. Configure a Trava de Commit (Pre-commit Hook):**
+Impede fisicamente o desenvolvedor de subir chaves vazadas:
+```bash
+repoguard-ai init-hook
+```
+
+**3. Rode o scanner no seu repositório:**
 ```bash
 repoguard-ai scan .
 ```
 
-*Precisa da saída para integração em scripts? Use JSON:*
+*Precisa integrar com o GitHub Advanced Security ou em scripts customizados?*
 ```bash
 repoguard-ai scan . --json
+repoguard-ai scan . --sarif > results.sarif
+```
+
+### 🤖 GitHub Action Nativa
+
+Crie o arquivo `.github/workflows/security.yml` para rodar direto no CI:
+
+```yaml
+name: Security Scan
+on: [push, pull_request]
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Darklca2026/repoguard-ai@main
+        with:
+          format: 'sarif' # Mostra os erros nativamente na aba Security do GitHub!
 ```
 
 ### 💻 Exemplo de Saída

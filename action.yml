@@ -1,0 +1,50 @@
+name: 'RepoGuard AI Scanner'
+description: 'Scans your repository for leaked secrets, prompt injections, and dangerous code.'
+author: 'RepoGuard AI'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  config:
+    description: 'Path to custom repoguard.config.yml'
+    required: false
+  fail-on:
+    description: 'Severity level to fail the action (LOW, MEDIUM, HIGH, CRITICAL)'
+    required: false
+    default: 'HIGH'
+  format:
+    description: 'Output format: terminal, json, or sarif'
+    required: false
+    default: 'terminal'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install RepoGuard AI globally
+      run: npm install -g repoguard-ai
+      shell: bash
+    - name: Run Scan
+      run: |
+        ARGS=""
+        if [ "${{ inputs.config }}" != "" ]; then
+          ARGS="$ARGS --config ${{ inputs.config }}"
+        fi
+        if [ "${{ inputs.format }}" == "json" ]; then
+          ARGS="$ARGS --json"
+        fi
+        if [ "${{ inputs.format }}" == "sarif" ]; then
+          ARGS="$ARGS --sarif > repoguard-results.sarif"
+        fi
+        
+        repoguard-ai scan . --fail-on ${{ inputs.fail-on }} $ARGS
+      shell: bash
+    - name: Upload SARIF file (if selected)
+      if: inputs.format == 'sarif'
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: repoguard-results.sarif

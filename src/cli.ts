@@ -3,10 +3,12 @@ import { Command } from "commander";
 import { loadConfig } from "./config";
 import { Scanner } from "./scanner";
 import { getEnabledRules } from "./rules";
-import { printTerminalReport, printJsonReport } from "./report";
+import { printTerminalReport, printJsonReport, printSarifReport } from "./report";
 import { calculateRiskScore } from "./risk-score";
 import { Severity } from "./types";
 import pc from "picocolors";
+import * as fs from "fs";
+import * as path from "path";
 
 const program = new Command();
 
@@ -16,13 +18,28 @@ program
   .version("0.1.0");
 
 program
+  .command("init-hook")
+  .description("Installs a pre-commit hook to prevent committing leaked secrets")
+  .action(() => {
+    try {
+      const hookPath = path.join(process.cwd(), ".git", "hooks", "pre-commit");
+      const hookScript = `#!/bin/sh\n# RepoGuard AI Pre-commit Hook\nrepoguard-ai scan .\nif [ $? -ne 0 ]; then\n  echo "Commit blocked by RepoGuard AI. Fix security issues first."\n  exit 1\nfi\n`;
+      fs.writeFileSync(hookPath, hookScript, { mode: 0o755 });
+      console.log(pc.green("✅ Pre-commit hook installed successfully at .git/hooks/pre-commit"));
+    } catch (e: any) {
+      console.error(pc.red(`Failed to install hook. Make sure this is a git repository. Error: ${e.message}`));
+    }
+  });
+
+program
   .command("scan")
   .description("Scan a directory for security risks")
   .argument("<path>", "Path to the directory to scan")
   .option("--json", "Output report in JSON format")
+  .option("--sarif", "Output report in SARIF format for GitHub Advanced Security")
   .option("-c, --config <path>", "Path to custom config file (YAML)")
   .option("--fail-on <severity>", "Fail with exit code 1 if risk score meets or exceeds this severity (LOW, MEDIUM, HIGH, CRITICAL)")
-  .action(async (targetPath: string, options: { json?: boolean; config?: string; failOn?: string }) => {
+  .action(async (targetPath: string, options: { json?: boolean; sarif?: boolean; config?: string; failOn?: string }) => {
     try {
       const config = loadConfig(options.config);
       
@@ -43,7 +60,9 @@ program
       const { filesScanned, findings } = await scanner.scan(targetPath);
       const riskScore = calculateRiskScore(findings);
 
-      if (options.json) {
+      if (options.sarif) {
+        printSarifReport(findings);
+      } else if (options.json) {
         printJsonReport(findings, filesScanned, riskScore);
       } else {
         printTerminalReport(findings, filesScanned, riskScore);

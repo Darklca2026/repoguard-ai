@@ -1,43 +1,61 @@
 import { Rule, Finding } from "../types";
+import { isSuspiciousBase64 } from "../utils/crypto";
 
-const PROMPT_INJECTION_PATTERNS = [
-  { phrase: "ignore previous instructions", severity: "MEDIUM" },
-  { phrase: "ignore all previous instructions", severity: "MEDIUM" },
-  { phrase: "reveal your system prompt", severity: "MEDIUM" },
-  { phrase: "print environment variables", severity: "HIGH" },
-  { phrase: "send the token", severity: "HIGH" },
-  { phrase: "exfiltrate", severity: "HIGH" },
-  { phrase: "bypass safety", severity: "MEDIUM" },
-  { phrase: "disable guardrails", severity: "MEDIUM" },
-  { phrase: "act as root", severity: "MEDIUM" },
-  { phrase: "leak secrets", severity: "HIGH" },
+const INJECTION_PHRASES = [
+  { phrase: "ignore previous instructions", severity: "MEDIUM" as const },
+  { phrase: "print environment variables", severity: "HIGH" as const },
+  { phrase: "send the token", severity: "HIGH" as const },
+  { phrase: "exfiltrate", severity: "HIGH" as const },
+  { phrase: "leak secrets", severity: "HIGH" as const },
+  { phrase: "bypass safety", severity: "MEDIUM" as const },
+  { phrase: "act as root", severity: "MEDIUM" as const }
 ];
 
 export const promptInjectionRule: Rule = {
-  id: "prompt_injection",
-  description: "Detects common prompt injection phrases",
-  severity: "MEDIUM",
-  fileTypes: [".md", ".txt", ".prompt", ".json", ".yaml", ".yml"],
+  id: "prompt-injection",
+  name: "Prompt Injection Detection",
   scan: (input) => {
-    const findings: Finding[] = [];
+    // Apenas varre extensões que podem conter texto ou prompts
+    if (!/\.(md|txt|json|yaml|yml|prompt)$/i.test(input.filePath)) {
+      return [];
+    }
 
-    input.lines.forEach((line, index) => {
-      const lowerLine = line.toLowerCase();
-      
-      for (const pattern of PROMPT_INJECTION_PATTERNS) {
-        if (lowerLine.includes(pattern.phrase)) {
+    const findings: Finding[] = [];
+    const contentLower = input.content.toLowerCase();
+    const lines = input.content.split("\n");
+
+    // 1. Checagem Padrão (Texto Claro)
+    for (const pattern of INJECTION_PHRASES) {
+      if (contentLower.includes(pattern.phrase)) {
+        findings.push({
+          ruleId: "prompt.injection_phrase",
+          severity: pattern.severity,
+          file: input.filePath,
+          line: lines.findIndex(line => line.toLowerCase().includes(pattern.phrase)) + 1 || 1,
+          snippet: `...${pattern.phrase}...`,
+          recommendation: "Treat external content as data, not instructions. Verify inputs and use clear separation."
+        });
+      }
+    }
+
+    // 2. Checagem de Evasão (Payloads em Base64)
+    // Procuramos palavras longas que possam ser B64
+    const words = input.content.split(/[\s"']/);
+    for (const word of words) {
+      if (word.length > 20) {
+        const decodedInjection = isSuspiciousBase64(word);
+        if (decodedInjection) {
           findings.push({
-            ruleId: "prompt.injection_phrase",
-            severity: pattern.severity as "MEDIUM" | "HIGH",
-            filePath: input.filePath,
-            line: index + 1,
-            message: `Prompt injection phrase detected: "${pattern.phrase}".`,
-            snippet: line.trim().substring(0, 50) + "...",
-            fix: "Treat external content as data, not instructions. Verify inputs and use clear separation."
+            ruleId: "prompt.injection_base64_evasion",
+            severity: "HIGH",
+            file: input.filePath,
+            line: lines.findIndex(line => line.includes(word)) + 1 || 1,
+            snippet: `[Base64 Decoded]: ...${decodedInjection.substring(0, 30)}...`,
+            recommendation: "Malicious base64-encoded prompt injection detected. Remove immediately."
           });
         }
       }
-    });
+    }
 
     return findings;
   }
