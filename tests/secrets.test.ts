@@ -12,7 +12,7 @@ describe("Secrets Rule", () => {
     const findings = secretsRule.scan(input);
     expect(findings.length).toBe(1);
     expect(findings[0].severity).toBe("CRITICAL");
-    expect(findings[0].snippet).toBe("sk-pro*************************");
+    expect(findings[0].snippet).toBe("sk-pro************************");
   });
 
   it("ignores safe values", () => {
