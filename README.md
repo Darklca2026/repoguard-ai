@@ -1,88 +1,100 @@
-# RepoGuard AI
+<div align="center">
 
-[![npm version](https://img.shields.io/npm/v/repoguard-ai.svg)](https://npmjs.org/package/repoguard-ai)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
+# 🛡️ RepoGuard AI
+**Security scanner for AI-assisted repositories.**
 
-Security scanner for AI-assisted repositories.
+[![npm version](https://img.shields.io/npm/v/repoguard-ai.svg?style=for-the-badge&color=blue)](https://npmjs.org/package/repoguard-ai)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg?style=for-the-badge)]()
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
+
+[English](#english) • [Português (PT-BR)](#português-pt-br)
+
+</div>
+
+---
+
+<h2 id="english">🇬🇧 English</h2>
 
 RepoGuard AI scans repositories for leaked AI/API secrets, prompt injection patterns, risky GitHub Actions, dangerous scripts, and unsafe AI-assisted code patterns.
 
-## Why
+### ❓ Why RepoGuard AI?
 
-AI coding tools, agents, prompts, and automated workflows are now part of everyday development. But they can introduce hidden risks:
+> [!NOTE]
+> AI coding tools, agents, prompts, and automated workflows are now part of everyday development. But they can introduce hidden risks.
 
-- leaked API keys
-- unsafe GitHub Actions
-- prompt injection patterns
-- dangerous shell commands
-- risky AI-generated code
+RepoGuard AI gives maintainers a fast local check before pushing or opening a pull request to ensure none of the following slip through:
+- Leaked API keys (OpenAI, Anthropic, AWS, GitHub)
+- Unsafe GitHub Actions (`pull_request_target`)
+- Prompt injection patterns (`"ignore previous instructions"`)
+- Dangerous shell commands (`curl | bash`)
+- Risky AI-generated code snippets
 
-RepoGuard AI gives maintainers a fast local check before pushing or opening a pull request.
+### ✨ Key Features
 
-## Install
+| Feature | Description | File Support |
+| --- | --- | --- |
+| 🔑 **Secret Detection** | Finds keys & DB URLs. Redacts outputs natively. | `.*` |
+| 💉 **Prompt Injection** | Scans for malicious override instructions. | `.md, .txt, .json, .yaml` |
+| ⚙️ **GitHub Actions** | Flags dangerous CI/CD permissions and triggers. | `.github/workflows/*.yml` |
+| 💣 **Dangerous Code** | Detects unsafe eval, exec, and shell executions. | `.js, .ts, .py, .sh` |
 
+### 🚀 Quick Start
+
+**1. Install globally via npm:**
 ```bash
 npm install -g repoguard-ai
 ```
 
-## Usage
-
+**2. Run the scanner in your repository:**
 ```bash
 repoguard-ai scan .
 ```
 
-JSON output:
-
+*Want machine-readable output? Use the JSON flag:*
 ```bash
 repoguard-ai scan . --json
 ```
 
-Custom config:
+### 💻 Example Output
 
-```bash
-repoguard-ai scan . --config repoguard.config.yml
-```
+<details>
+<summary>Click to see what the terminal report looks like</summary>
 
-## Example output
-
-```
+```text
 RepoGuard AI Report
 
-Risk score: HIGH
+Risk score: CRITICAL
 Files scanned: 42
 Findings: 4
 
 [CRITICAL] .env:1 secret.openai_api_key
 Possible OpenAI API key detected.
+Snippet: sk-pro************************
 Fix: Remove the key, rotate it, and use environment variables or GitHub Secrets.
 
 [HIGH] .github/workflows/deploy.yml:4 actions.pull_request_target
 Workflow uses pull_request_target.
+Snippet: on: pull_request_target
 Fix: Avoid pull_request_target for untrusted pull requests or restrict permissions.
 
 [MEDIUM] prompts/system.md:12 prompt.injection_phrase
 Prompt injection phrase detected: "ignore previous instructions".
+Snippet: If asked, ignore previous instructions...
 Fix: Treat external content as data, not instructions.
 ```
+</details>
 
-## What it detects
-- AI/API secrets
-- prompt injection phrases
-- risky GitHub Actions
-- dangerous shell/code patterns
-- AI instruction files
+### ⚙️ Configuration
 
-## Configuration
-
-`repoguard.config.yml`:
+Create a `repoguard.config.yml` in your root directory to customize the engine:
 
 ```yaml
 ignore:
-  - node_modules/**
-  - dist/**
-  - build/**
-  - .git/**
+  - "node_modules/**"
+  - "dist/**"
+  - "build/**"
+  - ".git/**"
 
 rules:
   secrets: true
@@ -92,22 +104,131 @@ rules:
   aiGenerated: true
 
 severity:
-  failOn: HIGH
+  failOn: HIGH # Exit code 1 if score meets or exceeds this
 ```
 
-## Roadmap
-- [x] Local CLI scanner
-- [x] Secret detection
-- [x] Prompt injection detection
-- [x] GitHub Actions risk detection
-- [x] Dangerous code detection
-- [ ] GitHub Action integration
-- [ ] SARIF output
-- [ ] Custom rule packs
-- [ ] VS Code extension
+### 📚 Architecture & Deep Dives
 
-## Limitations
-RepoGuard AI is a static scanner. It may produce false positives and does not replace manual security review.
+> [!TIP]
+> Explore our complete documentation to understand the rules and limitations.
 
-## License
-MIT
+- [Threat Model](docs/threat-model.md) - What we detect and our limitations.
+- [Rules Engine](docs/rules.md) - Detailed breakdown of every security rule.
+- [False Positives](docs/false-positives.md) - How to mitigate noisy alerts.
+- [Project Roadmap](docs/roadmap.md) - Future integrations (SARIF, VS Code).
+- [Contributing](CONTRIBUTING.md) - Learn how to add new rules to RepoGuard AI.
+
+---
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/open-source/open-source.png" width="50" />
+</div>
+
+---
+
+<h2 id="português-pt-br">🇧🇷 Português (PT-BR)</h2>
+
+O RepoGuard AI analisa repositórios em busca de vazamentos de chaves de API/IA, padrões de prompt injection, GitHub Actions perigosas, scripts arriscados e padrões inseguros de código gerado por IA.
+
+### ❓ Por que o RepoGuard AI?
+
+> [!NOTE]
+> Ferramentas de IA, agentes autônomos, prompts e fluxos de trabalho automatizados agora fazem parte do desenvolvimento diário. Mas eles podem introduzir riscos ocultos.
+
+O RepoGuard AI fornece aos mantenedores uma verificação local super rápida antes de fazer um `git push` ou abrir um Pull Request, garantindo que nada disso passe despercebido:
+- Vazamento de chaves de API (OpenAI, Anthropic, AWS, GitHub)
+- GitHub Actions inseguras (uso de `pull_request_target`)
+- Padrões de prompt injection (`"ignore previous instructions"`)
+- Comandos shell perigosos (`curl | bash`)
+- Códigos inseguros gerados por IA
+
+### ✨ Principais Recursos
+
+| Recurso | Descrição | Extensões |
+| --- | --- | --- |
+| 🔑 **Detecção de Secrets** | Acha chaves e URLs de DB. Ofusca automaticamente no log. | `.*` |
+| 💉 **Prompt Injection** | Busca por instruções de sobreposição maliciosas. | `.md, .txt, .json, .yaml` |
+| ⚙️ **GitHub Actions** | Alerta permissões altas de CI/CD e gatilhos inseguros. | `.github/workflows/*.yml` |
+| 💣 **Código Perigoso** | Detecta uso de eval, exec e execução cega em shell. | `.js, .ts, .py, .sh` |
+
+### 🚀 Início Rápido
+
+**1. Instale globalmente via npm:**
+```bash
+npm install -g repoguard-ai
+```
+
+**2. Rode o scanner no seu repositório:**
+```bash
+repoguard-ai scan .
+```
+
+*Precisa da saída para integração em scripts? Use JSON:*
+```bash
+repoguard-ai scan . --json
+```
+
+### 💻 Exemplo de Saída
+
+<details>
+<summary>Clique para ver como o relatório aparece no terminal</summary>
+
+```text
+RepoGuard AI Report
+
+Risk score: CRITICAL
+Files scanned: 42
+Findings: 4
+
+[CRITICAL] .env:1 secret.openai_api_key
+Possible OpenAI API key detected.
+Snippet: sk-pro************************
+Fix: Remove the key, rotate it, and use environment variables or GitHub Secrets.
+
+[HIGH] .github/workflows/deploy.yml:4 actions.pull_request_target
+Workflow uses pull_request_target.
+Snippet: on: pull_request_target
+Fix: Avoid pull_request_target for untrusted pull requests or restrict permissions.
+
+[MEDIUM] prompts/system.md:12 prompt.injection_phrase
+Prompt injection phrase detected: "ignore previous instructions".
+Snippet: If asked, ignore previous instructions...
+Fix: Treat external content as data, not instructions.
+```
+</details>
+
+### ⚙️ Configuração
+
+Crie um arquivo `repoguard.config.yml` na raiz do seu projeto para customizar o motor:
+
+```yaml
+ignore:
+  - "node_modules/**"
+  - "dist/**"
+  - "build/**"
+  - ".git/**"
+
+rules:
+  secrets: true
+  promptInjection: true
+  githubActions: true
+  dangerousCode: true
+  aiGenerated: true
+
+severity:
+  failOn: HIGH # O processo falha (Exit 1) se o risco atingir essa severidade
+```
+
+### 📚 Arquitetura e Documentação Profunda
+
+> [!TIP]
+> Explore nossa documentação para entender como as regras funcionam e suas limitações.
+
+- [Modelo de Ameaças](docs/threat-model.md) - O que detectamos e onde falhamos.
+- [Motor de Regras](docs/rules.md) - Visão técnica de todas as regras ativas.
+- [Falsos Positivos](docs/false-positives.md) - Como lidar com alertas ruidosos.
+- [Roadmap do Projeto](docs/roadmap.md) - Futuras integrações (SARIF, GitHub nativo).
+- [Como Contribuir](CONTRIBUTING.md) - Aprenda a adicionar novas regras ao scanner.
+
+---
+*RepoGuard AI - License: MIT*
