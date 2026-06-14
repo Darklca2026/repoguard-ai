@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsup src/cli.ts --format cjs --minify",
     "dev": "tsx src/cli.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json"
   },
   "keywords": [
     "ai-security",

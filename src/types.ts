@@ -32,6 +32,7 @@ export type RepoGuardConfig = {
     githubActions?: boolean;
     dangerousCode?: boolean;
     aiGenerated?: boolean;
+    aiPoisoning?: boolean;
   };
   severity?: {
     failOn?: Severity;

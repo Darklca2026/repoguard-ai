@@ -14,6 +14,7 @@ const configSchema = z.object({
       githubActions: z.boolean().optional(),
       dangerousCode: z.boolean().optional(),
       aiGenerated: z.boolean().optional(),
+      aiPoisoning: z.boolean().optional(),
     })
     .optional(),
   severity: z
@@ -32,6 +33,7 @@ export const DEFAULT_CONFIG: RepoGuardConfig = {
     githubActions: true,
     dangerousCode: true,
     aiGenerated: true,
+    aiPoisoning: true,
   },
   severity: {
     failOn: "HIGH",
@@ -42,7 +44,12 @@ export const DEFAULT_CONFIG: RepoGuardConfig = {
 export function loadConfig(configPath?: string): RepoGuardConfig {
   let config = { ...DEFAULT_CONFIG };
 
-  if (configPath && fs.existsSync(configPath)) {
+  if (configPath && !fs.existsSync(configPath)) {
+    console.error(`Configuration file not found: ${configPath}`);
+    process.exit(1);
+  }
+
+  if (configPath) {
     try {
       const fileContent = fs.readFileSync(configPath, "utf8");
       let parsedYaml = yaml.load(fileContent) as any;

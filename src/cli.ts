@@ -11,11 +11,13 @@ import * as fs from "fs";
 import * as path from "path";
 
 const program = new Command();
+const packageJsonPath = path.resolve(__dirname, "../package.json");
+const packageVersion = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")).version;
 
 program
   .name("repoguard-ai")
   .description("Security scanner for AI-assisted repositories.")
-  .version("0.1.0");
+  .version(packageVersion);
 
 program
   .command("init-hook")
@@ -62,7 +64,9 @@ program
   .option("--fail-on <severity>", "Fail with exit code 1 if risk score meets or exceeds this severity (LOW, MEDIUM, HIGH, CRITICAL)")
   .action(async (targetPath: string, options: { json?: boolean; sarif?: boolean; config?: string; failOn?: string }) => {
     try {
-      const config = loadConfig(options.config);
+      const defaultConfigPath = path.join(path.resolve(targetPath), "repoguard.config.yml");
+      const configPath = options.config ?? (fs.existsSync(defaultConfigPath) ? defaultConfigPath : undefined);
+      const config = loadConfig(configPath);
       
       if (options.failOn) {
         const severities = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];

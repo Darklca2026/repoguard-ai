@@ -11,6 +11,7 @@ rules:
   githubActions: true
   dangerousCode: true
   aiGenerated: true
+  aiPoisoning: true
 
 severity:
   failOn: HIGH
