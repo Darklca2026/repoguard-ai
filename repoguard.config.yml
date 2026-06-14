@@ -9,3 +9,5 @@ ignore:
 
 severity:
   failOn: "HIGH"
+  - name: RepoGuard AI Scanner
+  uses: Darklca2026/repoguard-ai@v0.1.01
