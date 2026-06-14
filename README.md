@@ -133,6 +133,7 @@ rules:
   githubActions: true
   dangerousCode: true
   aiGenerated: true
+  aiPoisoning: true
 
 severity:
   failOn: HIGH # Exit code 1 if score meets or exceeds this
@@ -276,6 +277,7 @@ rules:
   githubActions: true
   dangerousCode: true
   aiGenerated: true
+  aiPoisoning: true
 
 severity:
   failOn: HIGH # O processo falha (Exit 1) se o risco atingir essa severidade
