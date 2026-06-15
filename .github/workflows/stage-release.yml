@@ -1,0 +1,61 @@
+name: Stage npm Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git tag to stage, for example v0.6.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - name: Check out the requested tag
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+      - name: Use an npm version with trusted staged publishing
+        run: npm install --global npm@11.17.0
+      - name: Verify tag matches package version
+        env:
+          RELEASE_REF: ${{ inputs.ref }}
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          test "$RELEASE_REF" = "v$PACKAGE_VERSION"
+      - name: Install, verify, and build
+        run: |
+          npm ci
+          npm run check
+          npm audit --omit=dev
+          npm pack --dry-run
+      - name: Build package and CycloneDX SBOM
+        id: package
+        run: |
+          PACKAGE_TARBALL="$(npm pack --silent)"
+          npm sbom --sbom-format cyclonedx > repoguard-ai.cdx.json
+          echo "tarball=$PACKAGE_TARBALL" >> "$GITHUB_OUTPUT"
+      - name: Upload release evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: repoguard-ai-${{ inputs.ref }}-release-evidence
+          path: |
+            ${{ steps.package.outputs.tarball }}
+            repoguard-ai.cdx.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Stage package for maintainer approval
+        run: npm stage publish

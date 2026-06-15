@@ -12,8 +12,15 @@ rules:
   dangerousCode: true
   aiGenerated: true
   aiPoisoning: true
+  agentSecurity: true
 
 severity:
   failOn: HIGH
 
 maxFileSizeKb: 1024
+
+suppressions:
+  enabled: true
+  requireReason: true
+  requireExpiry: false
+  maxExpiryDays: 365

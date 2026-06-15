@@ -9,6 +9,7 @@ ignore:
   - "src/rules/github-actions.ts" # Contains dangerous workflow patterns used by the detector
   - "src/rules/dangerous-code.ts" # We have literal eval strings here that our own rule will catch!
   - "src/rules/prompt-injection.ts" # We have literal prompt injection texts here
+  - "src/rules/agent-security.ts" # Contains risky MCP and agent patterns used by the detector
 
 severity:
   failOn: "HIGH"

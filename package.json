@@ -1,40 +1,78 @@
 {
   "name": "repoguard-ai",
-  "version": "0.5.0",
-  "description": "Security scanner for AI-assisted repositories",
+  "version": "0.6.0",
+  "description": "Shift-left security scanner for AI-assisted and agentic repositories",
+  "author": "Darklca2026",
   "main": "dist/cli.js",
   "bin": {
     "repoguard-ai": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsup src/cli.ts --format cjs --minify",
+    "build": "tsup --config tsup.config.ts && node scripts/normalize-bundle.cjs",
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check src tests scripts *.ts",
+    "format": "biome check --write src tests scripts *.ts",
+    "check": "npm run typecheck && npm run lint && npm test && npm run test:coverage && npm run build && npm run verify:bundle",
+    "verify:bundle": "node scripts/verify-bundle.cjs",
+    "prepack": "npm run check"
   },
   "keywords": [
     "ai-security",
     "security-scanner",
     "github-actions",
     "prompt-injection",
-    "secrets-detection"
+    "secrets-detection",
+    "agentic-security",
+    "mcp-security",
+    "sarif",
+    "supply-chain-security"
   ],
-  "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Darklca2026/repoguard-ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Darklca2026/repoguard-ai/issues"
+  },
+  "homepage": "https://github.com/Darklca2026/repoguard-ai#readme",
+  "funding": "https://github.com/sponsors/Darklca2026",
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "packageManager": "npm@11.17.0",
+  "files": [
+    "dist/cli.js",
+    "docs/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "SECURITY.md",
+    "repoguard.config.example.yml"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "commander": "^12.0.0",
+    "commander": "^15.0.0",
     "fast-glob": "^3.3.2",
-    "ignore": "^5.3.1",
+    "ignore": "^7.0.5",
     "js-yaml": "^4.1.0",
     "picocolors": "^1.0.0",
-    "zod": "^3.22.4"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.12.7",
-    "tsup": "^8.0.2",
-    "tsx": "^4.7.2",
-    "typescript": "^5.4.5",
+    "@types/node": "^24.13.2",
+    "@vitest/coverage-v8": "^4.1.8",
+    "tsup": "^8.5.1",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.8"
   },
   "overrides": {

@@ -15,3 +15,21 @@ ignore:
   - "tests/mocks/**"
   - "docs/security-tutorial.md"
 ```
+
+Para adotar o RepoGuard em um repositório com achados legítimos já revisados, prefira um baseline em vez de ignorar diretórios inteiros:
+
+```bash
+repoguard-ai scan . --write-baseline .repoguard-baseline.json
+repoguard-ai scan . --baseline .repoguard-baseline.json
+```
+
+Revise o arquivo antes de commitá-lo. Um baseline não marca o código como seguro; ele apenas separa dívida conhecida de regressões novas.
+
+Para uma exceção pequena e localizada, use uma supressão auditável em comentário:
+
+```javascript
+// repoguard-ignore-next-line code.eval -- parser legado isolado; owner=platform; expires=2026-09-30
+eval(legacyExpression);
+```
+
+Prefira uma regra exata ou um prefixo como `secret.*`; evite `*`. Supressões vencidas ou sem justificativa são reportadas como violações de política.

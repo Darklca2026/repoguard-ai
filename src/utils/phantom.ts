@@ -11,33 +11,37 @@ const BIDI_OVERRIDES_REGEX = /[\u202E\u202B\u202D\u202A\u202C]/g;
 
 // Basic Cyrillic Homoglyphs that look like Latin characters
 const HOMOGLYPH_MAP: Record<string, string> = {
-  'а': 'a',
-  'с': 'c',
-  'е': 'e',
-  'о': 'o',
-  'р': 'p',
-  'х': 'x',
-  'у': 'y'
+  а: "a",
+  с: "c",
+  е: "e",
+  о: "o",
+  р: "p",
+  х: "x",
+  у: "y",
 };
 
-export function detectPhantomEvasion(str: string): { 
-  hasInvisibleChars: boolean; 
-  hasBidiOverride: boolean; 
+export function detectPhantomEvasion(str: string): {
+  hasInvisibleChars: boolean;
+  hasBidiOverride: boolean;
   cleanText: string;
 } {
-  let hasInvisibleChars = INVISIBLE_CHARS_REGEX.test(str);
-  let hasBidiOverride = BIDI_OVERRIDES_REGEX.test(str);
-  
+  const normalized = str.normalize("NFKC");
+  const hasInvisibleChars = normalized.search(INVISIBLE_CHARS_REGEX) >= 0;
+  const hasBidiOverride = normalized.search(BIDI_OVERRIDES_REGEX) >= 0;
+
   // Clean invisible and bidi chars
-  let cleanText = str.replace(INVISIBLE_CHARS_REGEX, "");
+  let cleanText = normalized.replace(INVISIBLE_CHARS_REGEX, "");
   cleanText = cleanText.replace(BIDI_OVERRIDES_REGEX, "");
-  
+
   // Normalize simple Homoglyphs
-  cleanText = cleanText.split('').map(char => HOMOGLYPH_MAP[char] || char).join('');
-  
+  cleanText = cleanText
+    .split("")
+    .map((char) => HOMOGLYPH_MAP[char] || char)
+    .join("");
+
   return {
     hasInvisibleChars,
     hasBidiOverride,
-    cleanText
+    cleanText,
   };
 }

@@ -7,12 +7,15 @@ RepoGuard AI helps detect common repository risks associated with AI-assisted de
 *   **Prompt Injection:** Frases comuns como "ignore previous instructions" ou "reveal your system prompt" embutidas em `.md` ou `.json`.
 *   **GitHub Actions Perigosas:** Uso de `pull_request_target` ou `permissions: write-all` que permitem a execução de código não confiável com altos privilégios no CI.
 *   **Padrões de Execução em Shell:** Uso indiscriminado de `curl | bash` ou `eval()` que podem expor o sistema a RCE (Remote Code Execution) caso o script origem seja comprometido.
+*   **Configurações de Agentes e MCP:** Credenciais literais, transportes remotos sem TLS, pacotes executados sem versão fixa, shells intermediários e instruções de autonomia excessiva.
+*   **Supply Chain no GitHub Actions:** Actions não fixadas por SHA e entrada controlada por atacantes interpolada diretamente em scripts.
 
 ## Limitações (O que NÃO detectamos)
 *   **Lógica Semântica:** Não entendemos o propósito do código, apenas padrões estáticos perigosos.
 *   **Ataques em Tempo de Execução:** Este é um scanner estático. Não detecta ataques ocorrendo enquanto seu aplicativo roda.
 *   **Secrets em Arquivos Binários:** Não varremos imagens, PDFs, arquivos compilados, etc.
 *   **Falsos Negativos:** Pode haver formatos de chaves que o scanner não reconhece nativamente. Se você possui um token com formato não padrão, ele não será pego pelas regras padrão atuais.
+*   **Autorização efetiva:** A ferramenta detecta configurações arriscadas, mas não prova que um servidor MCP remoto aplica OAuth, consentimento, isolamento ou autorização corretamente em runtime.
 
 ## Falsos Positivos
 Como o RepoGuard AI utiliza expressões regulares e correspondência de padrões:
@@ -21,3 +24,10 @@ Como o RepoGuard AI utiliza expressões regulares e correspondência de padrões
 
 ## Uso Responsável
 O RepoGuard AI **NÃO substitui** uma auditoria de segurança rigorosa, pentests ou as ferramentas nativas de Secret Scanning do GitHub. Ele deve ser utilizado como uma camada adicional para desenvolvedores locais, ajudando a prevenir que erros acidentais subam para o repositório principal através de commits.
+
+## Referências de projeto
+
+- [OWASP Top 10 for LLM and GenAI Applications 2025](https://genai.owasp.org/llm-top-10/)
+- [Model Context Protocol specification](https://modelcontextprotocol.io/specification/2025-11-25)
+- [GitHub Actions secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)
+- [OpenSSF Open Source Project Security Baseline](https://baseline.openssf.org/)

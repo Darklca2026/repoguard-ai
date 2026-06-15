@@ -1,11 +1,54 @@
-import { Rule, Finding } from "../types";
+import type { Finding, Rule } from "../types";
 
 const POISONING_PATTERNS = [
-  { id: "ai.pickle_load", regex: /pickle\.(load|loads)\s*\(/, severity: "CRITICAL" as const, fix: "Avoid using pickle to load untrusted data. It can execute arbitrary code. Use safetensors or json." },
-  { id: "ai.torch_load_unsafe", regex: /torch\.load\s*\([^)]*(weights_only\s*=\s*False)?[^)]*\)/, severity: "HIGH" as const, fix: "Always use weights_only=True when loading PyTorch models to prevent arbitrary code execution." },
-  { id: "ai.yaml_unsafe_load", regex: /yaml\.unsafe_load\s*\(/, severity: "CRITICAL" as const, fix: "Use yaml.safe_load() instead of unsafe_load()." },
-  { id: "ai.keras_lambda", regex: /Lambda\s*\(/, severity: "LOW" as const, fix: "Keras Lambda layers can execute arbitrary functions. Ensure the model source is trusted." },
-  { id: "ai.numpy_load_allow_pickle", regex: /numpy\.load\s*\([^)]*allow_pickle\s*=\s*True[^)]*\)/, severity: "HIGH" as const, fix: "Avoid using allow_pickle=True in numpy.load()." }
+  {
+    id: "ai.pickle_load",
+    regex: /pickle\.(load|loads)\s*\(/,
+    severity: "CRITICAL" as const,
+    fix: "Avoid using pickle to load untrusted data. It can execute arbitrary code. Use safetensors or json.",
+  },
+  {
+    id: "ai.torch_load_unsafe",
+    regex: /torch\.load\s*\([^)]*(weights_only\s*=\s*False)?[^)]*\)/,
+    severity: "HIGH" as const,
+    fix: "Always use weights_only=True when loading PyTorch models to prevent arbitrary code execution.",
+  },
+  {
+    id: "ai.yaml_unsafe_load",
+    regex: /yaml\.unsafe_load\s*\(/,
+    severity: "CRITICAL" as const,
+    fix: "Use yaml.safe_load() instead of unsafe_load().",
+  },
+  {
+    id: "ai.keras_lambda",
+    regex: /Lambda\s*\(/,
+    severity: "LOW" as const,
+    fix: "Keras Lambda layers can execute arbitrary functions. Ensure the model source is trusted.",
+  },
+  {
+    id: "ai.numpy_load_allow_pickle",
+    regex: /numpy\.load\s*\([^)]*allow_pickle\s*=\s*True[^)]*\)/,
+    severity: "HIGH" as const,
+    fix: "Avoid using allow_pickle=True in numpy.load().",
+  },
+  {
+    id: "ai.joblib_load",
+    regex: /joblib\.load\s*\(/,
+    severity: "HIGH" as const,
+    fix: "Do not load untrusted joblib artifacts; use a safer format and verify artifact provenance.",
+  },
+  {
+    id: "ai.dill_load",
+    regex: /dill\.(?:load|loads)\s*\(/,
+    severity: "CRITICAL" as const,
+    fix: "Avoid deserializing untrusted dill payloads because they can execute arbitrary code.",
+  },
+  {
+    id: "ai.trust_remote_code",
+    regex: /trust_remote_code\s*=\s*True/,
+    severity: "HIGH" as const,
+    fix: "Avoid trust_remote_code=True. Pin a reviewed revision and vendor or audit the remote implementation.",
+  },
 ];
 
 export const aiPoisoningRule: Rule = {
@@ -25,9 +68,9 @@ export const aiPoisoningRule: Rule = {
           // Additional safety check for torch.load: If it explicitly has weights_only=True, we shouldn't flag it as HIGH unless it explicitly has False or lacks it.
           // The regex /torch\.load\s*\(/ catches all. Let's refine it in logic:
           if (pattern.id === "ai.torch_load_unsafe") {
-             if (line.includes("weights_only=True")) {
-               continue; // It is safe
-             }
+            if (/weights_only\s*=\s*True/.test(line)) {
+              continue; // It is safe
+            }
           }
 
           findings.push({
@@ -37,12 +80,12 @@ export const aiPoisoningRule: Rule = {
             line: index + 1,
             message: `Insecure AI model loading detected: ${pattern.id}.`,
             snippet: line.trim().substring(0, 80),
-            fix: pattern.fix
+            fix: pattern.fix,
           });
         }
       }
     });
 
     return findings;
-  }
+  },
 };

@@ -8,6 +8,14 @@ export type Finding = {
   message: string;
   snippet?: string;
   fix?: string;
+  fingerprint?: string;
+};
+
+export type InlineSuppressionConfig = {
+  enabled?: boolean;
+  requireReason?: boolean;
+  requireExpiry?: boolean;
+  maxExpiryDays?: number;
 };
 
 export type ScanInput = {
@@ -33,9 +41,30 @@ export type RepoGuardConfig = {
     dangerousCode?: boolean;
     aiGenerated?: boolean;
     aiPoisoning?: boolean;
+    agentSecurity?: boolean;
   };
   severity?: {
     failOn?: Severity;
   };
   maxFileSizeKb?: number;
+  suppressions?: InlineSuppressionConfig;
+};
+
+export type ScanDiagnostic = {
+  filePath: string;
+  reason: string;
+};
+
+export type ScanStats = {
+  filesDiscovered: number;
+  filesScanned: number;
+  skippedBinary: number;
+  skippedOversized: number;
+  suppressedInline: number;
+  readErrors: ScanDiagnostic[];
+};
+
+export type ScanResult = {
+  findings: Finding[];
+  stats: ScanStats;
 };

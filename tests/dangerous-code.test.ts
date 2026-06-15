@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { dangerousCodeRule } from "../src/rules/dangerous-code";
 
 describe("Dangerous Code Rule", () => {
@@ -6,9 +6,9 @@ describe("Dangerous Code Rule", () => {
     const input = {
       filePath: "src/index.js",
       content: "eval('console.log(1)')",
-      lines: ["eval('console.log(1)')"]
+      lines: ["eval('console.log(1)')"],
     };
-    
+
     const findings = dangerousCodeRule.scan(input);
     expect(findings.length).toBe(1);
     expect(findings[0].ruleId).toBe("code.eval");
@@ -18,9 +18,9 @@ describe("Dangerous Code Rule", () => {
     const input = {
       filePath: "scripts/clean.sh",
       content: "rm -rf /",
-      lines: ["rm -rf /"]
+      lines: ["rm -rf /"],
     };
-    
+
     const findings = dangerousCodeRule.scan(input);
     expect(findings.length).toBe(1);
     expect(findings[0].ruleId).toBe("code.rm_rf");

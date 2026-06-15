@@ -1,15 +1,20 @@
-import { Rule, Finding } from "../types";
+import type { Finding, Rule } from "../types";
 import { isSuspiciousBase64 } from "../utils/crypto";
 import { detectPhantomEvasion } from "../utils/phantom";
 
 const INJECTION_PHRASES = [
   { phrase: "ignore previous instructions", severity: "MEDIUM" as const },
+  { phrase: "ignore all previous instructions", severity: "HIGH" as const },
+  { phrase: "ignore all prior instructions", severity: "HIGH" as const },
+  { phrase: "reveal the system prompt", severity: "HIGH" as const },
+  { phrase: "reveal your system prompt", severity: "HIGH" as const },
+  { phrase: "show the developer message", severity: "HIGH" as const },
   { phrase: "print environment variables", severity: "HIGH" as const },
   { phrase: "send the token", severity: "HIGH" as const },
   { phrase: "exfiltrate", severity: "HIGH" as const },
   { phrase: "leak secrets", severity: "HIGH" as const },
   { phrase: "bypass safety", severity: "MEDIUM" as const },
-  { phrase: "act as root", severity: "MEDIUM" as const }
+  { phrase: "act as root", severity: "MEDIUM" as const },
 ];
 
 export const promptInjectionRule: Rule = {
@@ -27,7 +32,7 @@ export const promptInjectionRule: Rule = {
 
     // Pre-processing: Apply Phantom Evasion Detector
     const phantomData = detectPhantomEvasion(input.content);
-    
+
     // Alerta Imediato para Caracteres Bi-Direcionais Escondidos (Muito Suspeito)
     if (phantomData.hasBidiOverride) {
       findings.push({
@@ -37,29 +42,41 @@ export const promptInjectionRule: Rule = {
         line: 1, // Assumimos que o arquivo está envenenado estruturalmente
         message: "Malicious Right-to-Left Override character detected.",
         snippet: "Bi-directional text spoofing",
-        fix: "Remove BiDi characters. They are often used to spoof file extensions or hide malware."
+        fix: "Remove BiDi characters. They are often used to spoof file extensions or hide malware.",
       });
     }
 
     const contentLower = phantomData.cleanText.toLowerCase();
+    const originalLower = input.content.normalize("NFKC").toLowerCase();
 
     // 1. Checagem Padrão (Texto Limpo de Evasões)
     let cleanLines: string[] | null = null; // Lazy loading das linhas limpas para otimizar RAM
-    
+
     for (const pattern of INJECTION_PHRASES) {
       if (contentLower.includes(pattern.phrase)) {
         if (!cleanLines) {
-           cleanLines = lines.map(line => detectPhantomEvasion(line.toLowerCase()).cleanText);
+          cleanLines = lines.map((line) => detectPhantomEvasion(line.toLowerCase()).cleanText);
         }
         findings.push({
           ruleId: "prompt.injection_phrase",
           severity: pattern.severity,
           filePath: input.filePath,
-          line: cleanLines.findIndex(line => line.includes(pattern.phrase)) + 1 || 1,
+          line: cleanLines.findIndex((line) => line.includes(pattern.phrase)) + 1 || 1,
           snippet: `...${pattern.phrase}...`,
           message: `Prompt injection phrase detected: "${pattern.phrase}".`,
-          fix: "Treat external content as data, not instructions. Verify inputs and use clear separation."
+          fix: "Treat external content as data, not instructions. Verify inputs and use clear separation.",
         });
+        if (phantomData.hasInvisibleChars && !originalLower.includes(pattern.phrase)) {
+          findings.push({
+            ruleId: "phantom.invisible_prompt_evasion",
+            severity: "HIGH",
+            filePath: input.filePath,
+            line: cleanLines.findIndex((line) => line.includes(pattern.phrase)) + 1 || 1,
+            snippet: `Normalized hidden text: ...${pattern.phrase}...`,
+            message: "Invisible Unicode characters were used to conceal a prompt-injection phrase.",
+            fix: "Remove hidden formatting characters and treat the source as potentially hostile content.",
+          });
+        }
       }
     }
 
@@ -73,15 +90,15 @@ export const promptInjectionRule: Rule = {
             ruleId: "prompt.injection_base64_evasion",
             severity: "HIGH",
             filePath: input.filePath,
-            line: lines.findIndex(line => line.includes(word)) + 1 || 1,
+            line: lines.findIndex((line) => line.includes(word)) + 1 || 1,
             snippet: `[Base64 Decoded]: ...${decodedInjection.substring(0, 30)}...`,
             message: "Malicious base64-encoded prompt injection detected.",
-            fix: "Remove immediately."
+            fix: "Remove immediately.",
           });
         }
       }
     }
 
     return findings;
-  }
+  },
 };

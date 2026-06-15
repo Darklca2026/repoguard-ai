@@ -1,4 +1,4 @@
-import { Finding, Severity } from "./types";
+import type { Finding, Severity } from "./types";
 
 export function calculateRiskScore(findings: Finding[]): Severity {
   let hasMedium = false;
