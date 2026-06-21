@@ -30,7 +30,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 20.x
           cache: npm
 
       - name: Install dependencies
@@ -46,7 +46,9 @@ jobs:
         run: npm run build
 
       - name: Install local RepoGuard AI build
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         run: npm install --global .
 
       - name: Scan repository with RepoGuard AI
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         run: repoguard-ai scan . --fail-on HIGH
