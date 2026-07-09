@@ -19,7 +19,7 @@ jobs:
       - name: Approve Dependabot PR
         # Auto-approves only minor or patch updates to avoid breaking changes
         if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             try {
@@ -36,7 +36,7 @@ jobs:
       - name: Merge Dependabot PR
         # Auto-merges only if it's a minor or patch update to avoid breaking changes
         if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             try {
