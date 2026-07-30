@@ -47,6 +47,6 @@ runs:
       shell: bash
     - name: Upload SARIF file (if selected)
       if: inputs.format == 'sarif'
-      uses: github/codeql-action/upload-sarif@v4
+      uses: github/codeql-action/upload-sarif@v4.37.3
       with:
         sarif_file: repoguard-results.sarif
