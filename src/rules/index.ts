@@ -4,6 +4,7 @@ import { githubActionsRule } from "./github-actions";
 import { dangerousCodeRule } from "./dangerous-code";
 import { aiGeneratedRule } from "./ai-generated";
 import { aiPoisoningRule } from "./ai-poisoning";
+import { malwareRule } from "./malware";
 import { RepoGuardConfig, Rule } from "../types";
 
 export function getEnabledRules(config: RepoGuardConfig): Rule[] {
@@ -15,6 +16,7 @@ export function getEnabledRules(config: RepoGuardConfig): Rule[] {
   if (config.rules?.dangerousCode !== false) rules.push(dangerousCodeRule);
   if (config.rules?.aiGenerated !== false) rules.push(aiGeneratedRule);
   if (config.rules?.aiPoisoning !== false) rules.push(aiPoisoningRule);
+  if (config.rules?.malware !== false) rules.push(malwareRule);
 
   return rules;
 }
