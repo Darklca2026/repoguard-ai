@@ -33,6 +33,7 @@ export type RepoGuardConfig = {
     dangerousCode?: boolean;
     aiGenerated?: boolean;
     aiPoisoning?: boolean;
+    malware?: boolean;
   };
   severity?: {
     failOn?: Severity;
